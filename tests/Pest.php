@@ -45,3 +45,13 @@ function centralUrl(string $path = '/'): string
 {
     return 'http://'.Tenant::centralDomain().'/'.ltrim($path, '/');
 }
+
+function memberOf(Tenant $tenant, App\Enums\MembershipRole $role = App\Enums\MembershipRole::Owner, array $attributes = []): App\Models\User
+{
+    return inTenant($tenant, function () use ($role, $attributes): App\Models\User {
+        $user = App\Models\User::factory()->create($attributes);
+        App\Models\Membership::factory()->for($user)->role($role)->create();
+
+        return $user;
+    });
+}

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureTenantMember;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\IdentifyTenant;
 use App\Http\Middleware\ResetTenancy;
 use Illuminate\Foundation\Application;
@@ -37,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withBroadcasting(__DIR__.'/../routes/channels.php', ['middleware' => ['web', 'tenant', 'auth']])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(ResetTenancy::class);
+        $middleware->web(append: [EnsureTenantMember::class, HandleInertiaRequests::class]);
 
         // O tenant precisa estar identificado antes da sessão e do route model binding.
         $middleware->prependToPriorityList(before: StartSession::class, prepend: IdentifyTenant::class);

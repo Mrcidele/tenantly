@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 it('resolve o tenant pelo subdomínio', function (): void {
     $tenant = Tenant::factory()->create(['slug' => 'acme']);
 
-    $this->get('http://acme.tenantly.test/')
+    $this->get('http://acme.tenantly.test/.well-known/tenant')
         ->assertOk()
         ->assertJsonPath('tenant.id', $tenant->id);
 });
@@ -33,11 +33,11 @@ it('resolve domínio customizado apenas quando verificado', function (): void {
     });
 
     $this->get('http://app.cliente.com/')->assertNotFound();
-    $this->get('http://portal.cliente.com/')->assertOk()->assertJsonPath('tenant.id', $tenant->id);
+    $this->get('http://portal.cliente.com/.well-known/tenant')->assertOk()->assertJsonPath('tenant.id', $tenant->id);
 });
 
 it('bloqueia tenants que não estão ativos', function (Tenant $tenant): void {
-    $this->get(tenantUrl($tenant))->assertForbidden();
+    $this->get(tenantUrl($tenant, '.well-known/tenant'))->assertForbidden();
 })->with([
     'suspenso' => fn () => Tenant::factory()->suspended()->create(),
     'provisionando' => fn () => Tenant::factory()->provisioning()->create(),
@@ -50,10 +50,10 @@ it('não expõe rotas de tenant no domínio central', function (): void {
 it('guarda a resolução no cache e não consulta o banco na segunda request', function (): void {
     Tenant::factory()->create(['slug' => 'acme']);
 
-    $this->get('http://acme.tenantly.test/')->assertOk();
+    $this->get('http://acme.tenantly.test/.well-known/tenant')->assertOk();
 
     DB::enableQueryLog();
-    $this->get('http://acme.tenantly.test/')->assertOk();
+    $this->get('http://acme.tenantly.test/.well-known/tenant')->assertOk();
 
     $tenantQueries = collect(DB::getQueryLog())->filter(fn (array $q): bool => str_contains($q['query'], '"tenants"'));
     expect($tenantQueries)->toBeEmpty();
@@ -61,18 +61,18 @@ it('guarda a resolução no cache e não consulta o banco na segunda request', f
 
 it('invalida o cache quando o slug muda', function (): void {
     $tenant = Tenant::factory()->create(['slug' => 'acme']);
-    $this->get('http://acme.tenantly.test/')->assertOk();
+    $this->get('http://acme.tenantly.test/.well-known/tenant')->assertOk();
 
     $tenant->update(['slug' => 'acme-novo']);
 
-    $this->get('http://acme.tenantly.test/')->assertNotFound();
-    $this->get('http://acme-novo.tenantly.test/')->assertOk();
+    $this->get('http://acme.tenantly.test/.well-known/tenant')->assertNotFound();
+    $this->get('http://acme-novo.tenantly.test/.well-known/tenant')->assertOk();
 });
 
 it('invalida o cache negativo quando o tenant é criado', function (): void {
-    $this->get('http://recem.tenantly.test/')->assertNotFound();
+    $this->get('http://recem.tenantly.test/.well-known/tenant')->assertNotFound();
 
     Tenant::factory()->create(['slug' => 'recem']);
 
-    $this->get('http://recem.tenantly.test/')->assertOk();
+    $this->get('http://recem.tenantly.test/.well-known/tenant')->assertOk();
 });

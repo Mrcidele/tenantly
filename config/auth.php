@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Admin;
 use App\Models\User;
 
 return [
@@ -44,6 +45,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Equipe interna (painel central). Nunca enxerga contexto de tenant.
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
@@ -67,6 +74,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => Admin::class,
         ],
 
         // 'users' => [

@@ -26,6 +26,7 @@ use Tests\Support\TenantModels;
  */
 const ROUTE_SWEEP_SKIP = [
     'tenant.files.show' => 'Exige URL assinada; isolamento coberto em ContextPropagationTest.',
+    'password.reset' => 'Parâmetro é o token de redefinição (Fortify), não um model.',
 ];
 
 /**
