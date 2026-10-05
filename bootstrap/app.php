@@ -27,6 +27,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->name('central.')
                 ->group(base_path('routes/central.php'));
 
+            $admin = config('tenancy.admin_domain');
+
+            Route::middleware('web')
+                ->domain(is_string($admin) ? $admin : 'admin.tenantly.localhost')
+                ->name('admin.')
+                ->group(base_path('routes/admin.php'));
+
             Route::middleware(['api', 'tenant:header,subdomain,domain'])
                 ->prefix('api')
                 ->name('api.')
@@ -42,6 +49,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(ResetTenancy::class);
         $middleware->web(append: [EnsureTenantMember::class, HandleInertiaRequests::class]);
         $middleware->alias(['feature' => RequireFeature::class]);
+        $middleware->redirectGuestsTo(fn (Request $request): string => $request->getHost() === config('tenancy.admin_domain')
+            ? route('admin.login')
+            : '/login');
+        $middleware->redirectUsersTo(fn (Request $request): string => $request->getHost() === config('tenancy.admin_domain') ? route('admin.dashboard') : '/');
         // Webhooks são autenticados pela assinatura do gateway.
         $middleware->validateCsrfTokens(except: ['webhooks/*']);
 

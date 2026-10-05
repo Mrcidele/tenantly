@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Enums\Permission;
+use App\Models\Admin;
 use App\Models\User;
 use App\Tenancy\Branding;
 use App\Tenancy\TenantContext;
@@ -27,6 +28,7 @@ final class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'app' => ['name' => config('app.name')],
+            'admin' => fn (): ?array => ($admin = $request->user('admin')) instanceof Admin ? ['name' => $admin->name, 'email' => $admin->email] : null,
             'tenant' => $tenant === null ? null : [
                 'id' => $tenant->id,
                 'name' => $tenant->name,
