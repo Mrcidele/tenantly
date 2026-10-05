@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Tenancy\TenantContext;
 use Closure;
+use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,7 +16,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final readonly class ResetTenancy
 {
-    public function __construct(private TenantContext $context) {}
+    public function __construct(
+        private TenantContext $context,
+        private AuthFactory $auth,
+    ) {}
 
     /**
      * @param  Closure(Request): Response  $next
@@ -23,6 +27,14 @@ final readonly class ResetTenancy
     public function handle(Request $request, Closure $next): Response
     {
         $this->context->reset();
+
+        // Usuário já resolvido antes da request (ex.: actingAs nos testes).
+        $guard = $this->auth->guard();
+
+        if ($guard->hasUser()) {
+            $id = $guard->id();
+            $this->context->setUser(is_string($id) ? $id : null);
+        }
 
         return $next($request);
     }

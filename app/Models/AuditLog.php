@@ -6,8 +6,10 @@ namespace App\Models;
 
 use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\CarbonImmutable;
+use Database\Factories\AuditLogFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -27,7 +29,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['tenant_id', 'actor_type', 'actor_id', 'impersonator_id', 'action', 'subject_type', 'subject_id', 'properties', 'ip_address', 'user_agent'])]
 class AuditLog extends Model
 {
-    use BelongsToTenant, HasUuids;
+    /** @use HasFactory<AuditLogFactory> */
+    use BelongsToTenant, HasFactory, HasUuids;
 
     public const null UPDATED_AT = null;
 
