@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+
+    /*
+     * Domínio central (landing, cadastro, webhooks). Tenants vivem em
+     * subdomínios dele (acme.tenantly.com) ou em domínios customizados.
+     */
+    'central_domain' => env('TENANCY_CENTRAL_DOMAIN', 'tenantly.localhost'),
+
+    'admin_domain' => env('TENANCY_ADMIN_DOMAIN', 'admin.tenantly.localhost'),
+
+    // Alvo do CNAME exibido para domínios customizados.
+    'cname_target' => env('TENANCY_CNAME_TARGET', 'cname.tenantly.localhost'),
+
+    // Header usado pela API para identificar o tenant.
+    'header' => 'X-Tenant',
+
+    'connections' => [
+        // Conexão do banco central (papel sem BYPASSRLS).
+        'central' => 'pgsql',
+        // Conexão com BYPASSRLS, usada apenas dentro de withoutTenancy().
+        'bypass' => 'pgsql_admin',
+        // Conexões que não recebem app.tenant_id (não estão sujeitas ao RLS).
+        'unsynchronized' => ['pgsql_admin', 'migrator'],
+    ],
+
+    'resolution_cache' => [
+        'store' => env('TENANCY_RESOLUTION_CACHE_STORE', 'central'),
+        'ttl' => (int) env('TENANCY_RESOLUTION_CACHE_TTL', 300),
+        // Hosts desconhecidos ficam em cache por pouco tempo (anti-enumeração/DoS).
+        'negative_ttl' => 30,
+    ],
+
+    /*
+     * Executados (nesta ordem) quando um tenant é ativado e revertidos (na
+     * ordem inversa) quando o contexto é limpo.
+     */
+    'bootstrappers' => [
+    ],
+
+    'cache' => [
+        // Stores cujo prefixo passa a ser "tenant:{id}:" com um tenant ativo.
+        'stores' => ['redis'],
+    ],
+
+    'filesystem' => [
+        'disk' => 'tenant',
+        'base_disk' => env('TENANCY_FILESYSTEM_BASE_DISK', 'local'),
+        'signed_url_ttl' => 15, // minutos
+    ],
+
+    'reserved_subdomains' => [
+        'admin', 'api', 'app', 'assets', 'auth', 'billing', 'blog', 'cdn', 'central',
+        'dashboard', 'dev', 'docs', 'email', 'ftp', 'help', 'imap', 'mail', 'mx',
+        'ns1', 'ns2', 'pop', 'portal', 'root', 'smtp', 'staging', 'static', 'status',
+        'support', 'system', 'tenant', 'tenantly', 'test', 'webmail', 'www', 'cname',
+    ],
+
+];

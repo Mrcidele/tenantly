@@ -80,10 +80,19 @@ return [
             ],
         ],
 
+        // Store padrão. Com tenant ativo o prefixo vira "...tenant:{id}:" (CacheBootstrapper).
         'redis' => [
             'driver' => 'redis',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
+        ],
+
+        // Store da plataforma (resolução de domínios, contadores). Prefixo fixo.
+        'central' => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
+            'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
+            'prefix' => env('CACHE_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-cache-').'central:',
         ],
 
         'dynamodb' => [

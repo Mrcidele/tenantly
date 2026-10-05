@@ -59,7 +59,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "${POSTGRES_SUPERUSER_PASSWORD:-postgres}"
-      TENANTLY_DATABASES: "tenantly tenantly_test"
+      TENANTLY_DATABASES: "tenantly tenantly_test tenantly_dedicated_test"
       DB_PASSWORD: "${DB_PASSWORD:-app}"
       DB_ADMIN_PASSWORD: "${DB_ADMIN_PASSWORD:-admin}"
       DB_MIGRATOR_PASSWORD: "${DB_MIGRATOR_PASSWORD:-migrator}"
