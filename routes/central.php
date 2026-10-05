@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Central\BillingWebhookController;
 use App\Http\Controllers\Central\SignupController;
 use App\Http\Controllers\Central\SubdomainAvailabilityController;
+use App\Http\Controllers\Central\TlsAskController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -20,3 +21,5 @@ Route::post('/webhooks/billing/{gateway}', BillingWebhookController::class)
     ->whereIn('gateway', ['fake', 'asaas', 'stripe'])
     ->middleware('throttle:120,1')
     ->name('webhooks.billing');
+
+Route::get('/internal/tls/ask', TlsAskController::class)->name('tls.ask');

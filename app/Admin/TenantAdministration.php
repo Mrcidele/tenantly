@@ -40,12 +40,12 @@ final readonly class TenantAdministration
 
             return [
                 'subscription' => Subscription::query()->with('plan')->first(),
-                'members' => Membership::query()->with('user')->get()->map(static fn (Membership $m): array => [
+                'members' => array_values(Membership::query()->with('user')->get()->map(static fn (Membership $m): array => [
                     'user_id' => $m->user_id,
                     'name' => $m->user->name,
                     'email' => $m->user->email,
                     'role' => $m->role->value,
-                ])->values()->all(),
+                ])->all()),
                 'usage' => $usage,
             ];
         });

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Billing\StartTrialOnProvisioning;
+use App\Domains\DnsResolver;
+use App\Domains\NativeDnsResolver;
 use App\Entitlements\Entitlements;
 use App\Enums\Permission;
 use App\Events\TenantProvisioningBilling;
@@ -13,11 +15,13 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Tenancy\Database\UseMigratorConnectionForSchemaCommands;
 use App\Tenancy\TenantContext;
+use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -31,10 +35,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(UseMigratorConnectionForSchemaCommands::class);
         $this->app->scoped(Entitlements::class);
+        $this->app->bind(DnsResolver::class, NativeDnsResolver::class);
     }
 
     public function boot(): void
     {
+        Date::use(CarbonImmutable::class);
         Model::shouldBeStrict(! $this->app->isProduction());
         Model::automaticallyEagerLoadRelationships();
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenant\MemberController;
 use App\Http\Controllers\Tenant\OrganizationController;
 use App\Http\Controllers\Tenant\ProjectController;
 use App\Http\Controllers\Tenant\Settings\BrandingController;
+use App\Http\Controllers\Tenant\Settings\DomainController;
 use App\Http\Controllers\Tenant\Settings\SecurityController;
 use App\Http\Controllers\Tenant\TenantFileController;
 use App\Http\Middleware\EnsureSubscriptionWritable;
@@ -51,6 +52,14 @@ Route::middleware(['auth', EnsureSubscriptionWritable::class])->group(function (
 
     Route::get('/settings/branding', [BrandingController::class, 'edit'])->name('settings.branding');
     Route::put('/settings/branding', [BrandingController::class, 'update'])->name('settings.branding.update');
+
+    Route::middleware('feature:custom_domains')->group(function (): void {
+        Route::get('/settings/domains', [DomainController::class, 'index'])->name('domains.index');
+        Route::post('/settings/domains', [DomainController::class, 'store'])->name('domains.store');
+        Route::post('/settings/domains/{domain}/verify', [DomainController::class, 'verify'])->name('domains.verify');
+        Route::post('/settings/domains/{domain}/primary', [DomainController::class, 'primary'])->name('domains.primary');
+        Route::delete('/settings/domains/{domain}', [DomainController::class, 'destroy'])->name('domains.destroy');
+    });
 
     Route::get('/audit', AuditLogController::class)->middleware('feature:audit_log')->name('audit.index');
     Route::delete('/impersonation', [ImpersonationController::class, 'destroy'])->name('impersonation.destroy');
