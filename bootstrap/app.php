@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/tenant.php'));
         },
     )
+    ->withBroadcasting(__DIR__.'/../routes/channels.php', ['middleware' => ['web', 'tenant', 'auth']])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(ResetTenancy::class);
 

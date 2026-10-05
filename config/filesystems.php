@@ -40,6 +40,11 @@ return [
             'report' => false,
         ],
 
+        // Disco do tenant ativo: raiz "tenants/{id}" sobre o disco base (ver config/tenancy.php).
+        'tenant' => [
+            'driver' => 'tenant',
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -17,5 +17,6 @@ abstract class TestCase extends BaseTestCase
 
         // O banco volta ao estado inicial a cada teste (transação); o cache também precisa.
         Redis::connection('cache')->flushdb();
+        Redis::connection('default')->flushdb();
     }
 }

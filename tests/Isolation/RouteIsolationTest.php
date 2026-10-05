@@ -25,6 +25,7 @@ use Tests\Support\TenantModels;
  * @var array<string, string>
  */
 const ROUTE_SWEEP_SKIP = [
+    'tenant.files.show' => 'Exige URL assinada; isolamento coberto em ContextPropagationTest.',
 ];
 
 /**

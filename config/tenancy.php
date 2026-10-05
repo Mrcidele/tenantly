@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Tenancy\Bootstrappers\CacheBootstrapper;
+use App\Tenancy\Bootstrappers\FilesystemBootstrapper;
+use App\Tenancy\Bootstrappers\ObservabilityBootstrapper;
+use App\Tenancy\Bootstrappers\UrlBootstrapper;
+
 return [
 
     /*
@@ -39,6 +44,10 @@ return [
      * ordem inversa) quando o contexto é limpo.
      */
     'bootstrappers' => [
+        CacheBootstrapper::class,
+        FilesystemBootstrapper::class,
+        UrlBootstrapper::class,
+        ObservabilityBootstrapper::class,
     ],
 
     'cache' => [
