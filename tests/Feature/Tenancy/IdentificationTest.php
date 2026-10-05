@@ -44,7 +44,9 @@ it('bloqueia tenants que não estão ativos', function (Tenant $tenant): void {
 ]);
 
 it('não expõe rotas de tenant no domínio central', function (): void {
-    $this->get(centralUrl('/'))->assertOk()->assertDontSee('"tenant"', false);
+    $this->get(centralUrl('/'))->assertOk()->assertInertia(fn ($page) => $page->where('tenant', null));
+    $this->get(centralUrl('/.well-known/tenant'))->assertNotFound();
+    $this->get(centralUrl('/login'))->assertNotFound();
 });
 
 it('guarda a resolução no cache e não consulta o banco na segunda request', function (): void {
