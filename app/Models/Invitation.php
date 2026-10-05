@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Audit\Concerns\Auditable;
 use App\Enums\MembershipRole;
 use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\CarbonImmutable;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
 class Invitation extends Model
 {
     /** @use HasFactory<InvitationFactory> */
-    use BelongsToTenant, HasFactory, HasUuids;
+    use Auditable, BelongsToTenant, HasFactory, HasUuids;
 
     public function isPending(): bool
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Audit\Concerns\Auditable;
 use App\Enums\TaskStatus;
 use App\Tenancy\Concerns\BelongsToTenant;
 use App\Tenancy\Contracts\StoresTenantData;
@@ -31,7 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Task extends Model implements StoresTenantData
 {
     /** @use HasFactory<TaskFactory> */
-    use BelongsToTenant, HasFactory, HasUuids;
+    use Auditable, BelongsToTenant, HasFactory, HasUuids;
 
     /** @var array<string, mixed> */
     protected $attributes = ['status' => 'todo'];

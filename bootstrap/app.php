@@ -34,13 +34,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
 
-            Route::middleware(['api', 'tenant:header,subdomain,domain'])
+            Route::middleware(['api', 'tenant:header,subdomain,domain', 'throttle:tenant-api'])
                 ->prefix('api')
                 ->name('api.')
                 ->group(base_path('routes/api.php'));
 
             // Qualquer outro host é tratado como tenant (subdomínio ou domínio customizado).
-            Route::middleware(['web', 'tenant'])
+            Route::middleware(['web', 'tenant', 'throttle:tenant-web'])
                 ->group(base_path('routes/tenant.php'));
         },
     )

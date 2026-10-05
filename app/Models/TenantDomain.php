@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Audit\Concerns\Auditable;
 use App\Enums\DomainStatus;
 use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\CarbonImmutable;
@@ -32,7 +33,7 @@ use Illuminate\Support\Str;
 class TenantDomain extends Model
 {
     /** @use HasFactory<TenantDomainFactory> */
-    use BelongsToTenant, HasFactory, HasUuids;
+    use Auditable, BelongsToTenant, HasFactory, HasUuids;
 
     /** @var array<string, mixed> */
     protected $attributes = [

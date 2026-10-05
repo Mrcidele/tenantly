@@ -67,7 +67,7 @@ jobs:
           PGHOST: 127.0.0.1
           PGUSER: postgres
           PGPASSWORD: postgres
-          TENANTLY_DATABASES: "tenantly_test tenantly_dedicated_test"
+          TENANTLY_DATABASES: "tenantly_test tenantly_dedicated_test tenantly_restore_test"
         run: sh docker/postgres/setup.sh
       - run: cp .env.example .env && php artisan key:generate
       - run: vendor/bin/pest --colors=always

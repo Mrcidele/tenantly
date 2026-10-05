@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Audit\Concerns\Auditable;
 use App\Tenancy\Concerns\BelongsToTenant;
 use App\Tenancy\Contracts\StoresTenantData;
 use Carbon\CarbonImmutable;
@@ -27,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Project extends Model implements StoresTenantData
 {
     /** @use HasFactory<ProjectFactory> */
-    use BelongsToTenant, HasFactory, HasUuids;
+    use Auditable, BelongsToTenant, HasFactory, HasUuids;
 
     /**
      * @return HasMany<Task, $this>

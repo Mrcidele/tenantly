@@ -51,6 +51,15 @@ class AppServiceProvider extends ServiceProvider
             Gate::define($permission->value, static fn (User $user): bool => $user->hasPermission($permission));
         }
 
+        // Com tenant ativo o cache (e portanto o rate limiter) já é prefixado por tenant.
+        RateLimiter::for('tenant-web', static fn (Request $request): array => [
+            Limit::perMinute(self::rate('web_per_tenant'))->by('tenant'),
+            Limit::perMinute(self::rate('web_per_ip'))->by('ip:'.$request->ip()),
+        ]);
+        RateLimiter::for('tenant-api', static fn (Request $request): array => [
+            Limit::perMinute(self::rate('api_per_tenant'))->by('tenant'),
+            Limit::perMinute(self::rate('api_per_token'))->by('token:'.hash('sha256', (string) $request->bearerToken()).':'.$request->ip()),
+        ]);
         RateLimiter::for('signup', static fn (Request $request): Limit => Limit::perHour(10)->by((string) $request->ip()));
         // Anti-enumeração de subdomínios.
         RateLimiter::for('subdomain-check', static fn (Request $request): Limit => Limit::perMinute(30)->by((string) $request->ip()));
@@ -64,5 +73,12 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(CommandStarting::class, [UseMigratorConnectionForSchemaCommands::class, 'starting']);
         Event::listen(CommandFinished::class, [UseMigratorConnectionForSchemaCommands::class, 'finished']);
+    }
+
+    private static function rate(string $key): int
+    {
+        $value = config('tenancy.rate_limits.'.$key);
+
+        return is_int($value) ? $value : 600;
     }
 }

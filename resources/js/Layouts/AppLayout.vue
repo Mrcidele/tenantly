@@ -20,6 +20,7 @@ const nav = [
     { href: '/settings/branding', label: 'Marca', permission: 'settings.manage' },
     { href: '/settings/api-tokens', label: 'API', permission: 'api-tokens.manage' },
     { href: '/billing', label: 'Assinatura', permission: 'billing.manage' },
+    { href: '/settings/data', label: 'Dados', permission: 'data.export' },
     { href: '/audit', label: 'Auditoria', permission: 'audit.view' },
 ];
 

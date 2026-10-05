@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenant\MemberController;
 use App\Http\Controllers\Tenant\OrganizationController;
 use App\Http\Controllers\Tenant\ProjectController;
 use App\Http\Controllers\Tenant\Settings\BrandingController;
+use App\Http\Controllers\Tenant\Settings\DataController;
 use App\Http\Controllers\Tenant\Settings\DomainController;
 use App\Http\Controllers\Tenant\Settings\SecurityController;
 use App\Http\Controllers\Tenant\TenantFileController;
@@ -60,6 +61,15 @@ Route::middleware(['auth', EnsureSubscriptionWritable::class])->group(function (
         Route::post('/settings/domains/{domain}/primary', [DomainController::class, 'primary'])->name('domains.primary');
         Route::delete('/settings/domains/{domain}', [DomainController::class, 'destroy'])->name('domains.destroy');
     });
+
+    Route::middleware('feature:data_export')->group(function (): void {
+        Route::get('/settings/data', [DataController::class, 'index'])->name('data.index');
+        Route::post('/settings/data/exports', [DataController::class, 'export'])->middleware('throttle:3,60')->name('data.export');
+        Route::get('/settings/data/exports/{export}', [DataController::class, 'download'])->name('data.download');
+    });
+    Route::post('/settings/organization/delete', [DataController::class, 'destroyOrganization'])
+        ->middleware(PreventDuringImpersonation::class)
+        ->name('organization.destroy');
 
     Route::get('/audit', AuditLogController::class)->middleware('feature:audit_log')->name('audit.index');
     Route::delete('/impersonation', [ImpersonationController::class, 'destroy'])->name('impersonation.destroy');

@@ -61,6 +61,17 @@ return [
         'signed_url_ttl' => 15, // minutos
     ],
 
+    'rate_limits' => [
+        // Requests por minuto, por tenant (todas as origens) e por tenant + IP.
+        'web_per_tenant' => (int) env('TENANCY_WEB_RATE_PER_TENANT', 1200),
+        'web_per_ip' => (int) env('TENANCY_WEB_RATE_PER_IP', 300),
+        'api_per_tenant' => (int) env('TENANCY_API_RATE_PER_TENANT', 1000),
+        'api_per_token' => (int) env('TENANCY_API_RATE_PER_TOKEN', 120),
+    ],
+
+    // Hosts inexistentes por IP/minuto antes de 429 (anti-enumeração).
+    'unknown_host_limit_per_minute' => 20,
+
     'reserved_subdomains' => [
         'admin', 'api', 'app', 'assets', 'auth', 'billing', 'blog', 'cdn', 'central',
         'dashboard', 'dev', 'docs', 'email', 'ftp', 'help', 'imap', 'mail', 'mx',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Audit\Concerns\Auditable;
 use App\Enums\MembershipRole;
 use App\Enums\Permission;
 use App\Tenancy\Concerns\BelongsToTenant;
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Membership extends Model
 {
     /** @use HasFactory<MembershipFactory> */
-    use BelongsToTenant, HasFactory, HasUuids;
+    use Auditable, BelongsToTenant, HasFactory, HasUuids;
 
     /**
      * @return BelongsTo<User, $this>
