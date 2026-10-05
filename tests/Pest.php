@@ -55,3 +55,33 @@ function memberOf(Tenant $tenant, App\Enums\MembershipRole $role = App\Enums\Mem
         return $user;
     });
 }
+
+/**
+ * Tenant ativo com assinatura no plano informado (seed dos planos incluso).
+ */
+function subscribedTenant(string $plan = 'starter', App\Enums\SubscriptionStatus $status = App\Enums\SubscriptionStatus::Active, array $attributes = []): Tenant
+{
+    if (! App\Models\Plan::query()->exists()) {
+        (new Database\Seeders\PlanSeeder)->run();
+    }
+
+    $tenant = Tenant::factory()->create($attributes);
+    $tenant->forceFill(['billing_gateway' => 'fake', 'billing_customer_id' => 'cus_'.Illuminate\Support\Str::random(10)])->save();
+
+    inTenant($tenant, fn () => App\Models\Subscription::factory()->status($status)->create([
+        'plan_id' => App\Models\Plan::query()->where('code', $plan)->value('id'),
+        'gateway_subscription_id' => 'sub_'.Illuminate\Support\Str::random(10),
+    ]));
+
+    return $tenant;
+}
+
+function fakeWebhook(array $payload): Illuminate\Testing\TestResponse
+{
+    $body = json_encode($payload, JSON_THROW_ON_ERROR);
+
+    return test()->call('POST', centralUrl('webhooks/billing/fake'), [], [], [], [
+        'CONTENT_TYPE' => 'application/json',
+        'HTTP_X_FAKE_SIGNATURE' => hash_hmac('sha256', $body, 'fake-secret'),
+    ], $body);
+}

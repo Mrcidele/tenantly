@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\Members;
 
 use App\Audit\AuditLogger;
+use App\Entitlements\Entitlements;
+use App\Enums\Limit;
 use App\Enums\MembershipRole;
 use App\Mail\InvitationMail;
 use App\Models\Invitation;
@@ -23,6 +25,7 @@ final readonly class InviteMember
         private TenantContext $context,
         private UrlGenerator $url,
         private AuditLogger $audit,
+        private Entitlements $entitlements,
     ) {}
 
     public function handle(User $inviter, string $email, MembershipRole $role): Invitation
@@ -37,6 +40,8 @@ final readonly class InviteMember
         if (User::query()->where('email', $email)->exists()) {
             throw ValidationException::withMessages(['email' => 'Este e-mail já é membro da organização.']);
         }
+
+        $this->entitlements->ensure(Limit::Users);
 
         // Um convite pendente por e-mail: reenviar substitui o anterior.
         Invitation::query()->where('email', $email)->whereNull('accepted_at')->delete();

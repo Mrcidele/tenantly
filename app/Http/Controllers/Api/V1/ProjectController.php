@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Entitlements\Entitlements;
+use App\Enums\Limit;
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
@@ -27,9 +29,10 @@ final class ProjectController extends Controller
         return response()->json(['data' => $project]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, Entitlements $entitlements): JsonResponse
     {
         $this->ensureAbility($request, Permission::ManageProjects);
+        $entitlements->ensure(Limit::Projects);
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],

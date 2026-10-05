@@ -27,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array<string, int|bool>|null $limit_overrides
  * @property string|null $primary_domain
  * @property string|null $queue
+ * @property string|null $billing_gateway
+ * @property string|null $billing_customer_id
  * @property array<string, mixed>|null $provisioning
  * @property CarbonImmutable|null $suspended_at
  * @property CarbonImmutable|null $deletion_requested_at

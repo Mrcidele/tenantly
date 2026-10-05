@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 use App\Enums\MembershipRole;
 use App\Models\Project;
-use App\Models\Tenant;
 
 beforeEach(function (): void {
-    $this->acme = Tenant::factory()->create(['slug' => 'acme']);
-    $this->globex = Tenant::factory()->create(['slug' => 'globex']);
+    $this->acme = subscribedTenant(attributes: ['slug' => 'acme']);
+    $this->globex = subscribedTenant(attributes: ['slug' => 'globex']);
     $this->alice = memberOf($this->acme);
     inTenant($this->acme, fn () => Project::factory()->create(['name' => 'Acme API']));
     inTenant($this->globex, fn () => Project::factory()->create(['name' => 'Globex API']));

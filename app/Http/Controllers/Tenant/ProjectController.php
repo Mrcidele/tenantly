@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Entitlements\Entitlements;
+use App\Enums\Limit;
 use App\Enums\Permission;
 use App\Events\ProjectCreated;
 use App\Http\Controllers\Controller;
@@ -35,9 +37,10 @@ final class ProjectController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, Entitlements $entitlements): RedirectResponse
     {
         $this->authorize(Permission::ManageProjects->value);
+        $entitlements->ensure(Limit::Projects);
 
         $user = $request->user();
         assert($user instanceof User);

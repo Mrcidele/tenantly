@@ -66,7 +66,7 @@ function seedTenant(Tenant $tenant): array
 
         $records = [];
         foreach (TenantModels::tenantScoped() as $class) {
-            $records[$class] = $class::factory()->count(2)->create()->all();
+            $records[$class] = [$class::factory()->create()];
         }
 
         return ['owner' => $owner, 'records' => $records];

@@ -26,7 +26,8 @@ final readonly class EnsureTenantMember
     {
         $user = $request->user();
 
-        if (! $user instanceof User) {
+        // Rotas centrais (sem tenant) não têm membership a verificar.
+        if (! $user instanceof User || ! $this->context->check()) {
             return $next($request);
         }
 

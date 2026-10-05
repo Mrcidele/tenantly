@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Jobs\PersistUsageCounters;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function (): void {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::command('billing:enforce-deadlines')->hourly()->withoutOverlapping()->onOneServer();
+Schedule::job(new PersistUsageCounters)->everyFiveMinutes()->onOneServer();

@@ -11,7 +11,7 @@ use App\Models\Membership;
 use App\Models\Tenant;
 
 beforeEach(function (): void {
-    $this->acme = Tenant::factory()->create(['slug' => 'acme', 'name' => 'Acme']);
+    $this->acme = subscribedTenant(attributes: ['slug' => 'acme', 'name' => 'Acme']);
     $this->globex = Tenant::factory()->create(['slug' => 'globex', 'name' => 'Globex']);
     $this->alice = memberOf($this->acme);
     inTenant($this->globex, fn () => Membership::factory()->create(['user_id' => $this->alice->id, 'role' => MembershipRole::Member]));

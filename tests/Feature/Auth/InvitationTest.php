@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Mail;
 
 beforeEach(function (): void {
     Mail::fake();
-    $this->acme = Tenant::factory()->create(['slug' => 'acme']);
+    $this->acme = subscribedTenant('pro', attributes: ['slug' => 'acme']);
     $this->owner = memberOf($this->acme);
 });
 

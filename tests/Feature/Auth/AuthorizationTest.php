@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 use App\Enums\MembershipRole;
 use App\Models\Membership;
-use App\Models\Tenant;
 
 beforeEach(function (): void {
-    $this->acme = Tenant::factory()->create();
+    $this->acme = subscribedTenant();
 });
 
 it('aplica permissões por papel', function (MembershipRole $role, int $status): void {
@@ -21,7 +20,7 @@ it('aplica permissões por papel', function (MembershipRole $role, int $status):
 ]);
 
 it('o mesmo usuário tem papéis diferentes em cada tenant', function (): void {
-    $globex = Tenant::factory()->create();
+    $globex = subscribedTenant();
     $user = memberOf($this->acme, MembershipRole::Viewer);
     inTenant($globex, fn () => Membership::factory()->create(['user_id' => $user->id, 'role' => MembershipRole::Owner]));
 

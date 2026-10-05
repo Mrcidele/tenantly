@@ -10,6 +10,8 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 
+beforeEach(fn () => (new Database\Seeders\PlanSeeder)->run());
+
 function signupPayload(array $overrides = []): array
 {
     return [

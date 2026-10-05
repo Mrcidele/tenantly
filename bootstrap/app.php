@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Middleware\EnsureTenantMember;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\IdentifyTenant;
+use App\Http\Middleware\RequireFeature;
 use App\Http\Middleware\ResetTenancy;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -40,6 +41,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(ResetTenancy::class);
         $middleware->web(append: [EnsureTenantMember::class, HandleInertiaRequests::class]);
+        $middleware->alias(['feature' => RequireFeature::class]);
+        // Webhooks são autenticados pela assinatura do gateway.
+        $middleware->validateCsrfTokens(except: ['webhooks/*']);
 
         // O tenant precisa estar identificado antes da sessão e do route model binding.
         $middleware->prependToPriorityList(before: StartSession::class, prepend: IdentifyTenant::class);

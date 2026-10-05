@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Entitlements\Entitlements;
 use App\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,6 +21,7 @@ final readonly class ResetTenancy
     public function __construct(
         private TenantContext $context,
         private AuthFactory $auth,
+        private Container $container,
     ) {}
 
     /**
@@ -27,6 +30,11 @@ final readonly class ResetTenancy
     public function handle(Request $request, Closure $next): Response
     {
         $this->context->reset();
+
+        // Estado memorizado por request (workers longos e testes reaproveitam o container).
+        if ($this->container->resolved(Entitlements::class)) {
+            $this->container->make(Entitlements::class)->flush();
+        }
 
         // Usuário já resolvido antes da request (ex.: actingAs nos testes).
         $guard = $this->auth->guard();
