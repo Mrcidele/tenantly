@@ -1,0 +1,99 @@
+name: tenantly
+
+x-app: &app
+  build:
+    context: .
+    target: dev
+  image: tenantly-dev
+  env_file: .env
+  environment:
+    DB_HOST: postgres
+    REDIS_HOST: redis
+    MAIL_HOST: mailpit
+    MAIL_PORT: 1025
+  volumes:
+    - .:/app
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *app
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
+  horizon:
+    <<: *app
+    command: ["php", "artisan", "horizon"]
+
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+
+  vite:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    volumes:
+      - .:/app
+
+  caddy:
+    image: caddy:2
+    profiles: ["tls"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${POSTGRES_SUPERUSER_PASSWORD:-postgres}"
+      TENANTLY_DATABASES: "tenantly tenantly_test"
+      DB_PASSWORD: "${DB_PASSWORD:-app}"
+      DB_ADMIN_PASSWORD: "${DB_ADMIN_PASSWORD:-admin}"
+      DB_MIGRATOR_PASSWORD: "${DB_MIGRATOR_PASSWORD:-migrator}"
+    ports:
+      - "${FORWARD_DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres:/tenantly/postgres:ro
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
+
+volumes:
+  postgres-data:
+  redis-data:
+  caddy-data:
