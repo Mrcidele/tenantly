@@ -12,16 +12,19 @@ use App\Http\Controllers\Tenant\InvitationController;
 use App\Http\Controllers\Tenant\MemberController;
 use App\Http\Controllers\Tenant\OrganizationController;
 use App\Http\Controllers\Tenant\ProjectController;
+use App\Http\Controllers\Tenant\Settings\BrandingController;
+use App\Http\Controllers\Tenant\Settings\SecurityController;
 use App\Http\Controllers\Tenant\TenantFileController;
 use App\Http\Middleware\EnsureSubscriptionWritable;
 use App\Http\Middleware\PreventDuringImpersonation;
+use App\Tenancy\Branding;
 use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Route;
 
 // Rotas carregadas com ['web', 'tenant']: o tenant já está identificado.
 
-Route::get('/.well-known/tenant', fn (TenantContext $tenancy) => [
-    'tenant' => $tenancy->get()->only(['id', 'name', 'slug', 'branding']),
+Route::get('/.well-known/tenant', fn (TenantContext $tenancy, Branding $branding) => [
+    'tenant' => [...$tenancy->get()->only(['id', 'name', 'slug']), 'branding' => $branding->for($tenancy->get())],
 ])->name('tenant.info');
 
 Route::get('/auth/handoff', HandoffController::class)->name('auth.handoff');
@@ -46,6 +49,9 @@ Route::middleware(['auth', EnsureSubscriptionWritable::class])->group(function (
     Route::get('/organizations', [OrganizationController::class, 'index'])->name('organizations.index');
     Route::post('/organizations/{organization}/switch', [OrganizationController::class, 'switch'])->name('organizations.switch');
 
+    Route::get('/settings/branding', [BrandingController::class, 'edit'])->name('settings.branding');
+    Route::put('/settings/branding', [BrandingController::class, 'update'])->name('settings.branding.update');
+
     Route::get('/audit', AuditLogController::class)->middleware('feature:audit_log')->name('audit.index');
     Route::delete('/impersonation', [ImpersonationController::class, 'destroy'])->name('impersonation.destroy');
 
@@ -53,6 +59,8 @@ Route::middleware(['auth', EnsureSubscriptionWritable::class])->group(function (
         Route::get('/settings/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
         Route::post('/settings/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
         Route::delete('/settings/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
+
+        Route::get('/settings/security', SecurityController::class)->name('settings.security');
 
         Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
         Route::get('/billing/preview', [BillingController::class, 'preview'])->name('billing.preview');

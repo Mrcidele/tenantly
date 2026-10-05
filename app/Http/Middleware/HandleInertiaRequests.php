@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\Permission;
 use App\Models\User;
+use App\Tenancy\Branding;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -30,7 +31,7 @@ final class HandleInertiaRequests extends Middleware
                 'id' => $tenant->id,
                 'name' => $tenant->name,
                 'slug' => $tenant->slug,
-                'branding' => $tenant->branding ?? [],
+                'branding' => app(Branding::class)->for($tenant),
             ],
             'auth' => [
                 'user' => $user instanceof User ? ['id' => $user->id, 'name' => $user->name, 'email' => $user->email] : null,
@@ -43,6 +44,7 @@ final class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'status' => $request->hasSession() ? $request->session()->get('status') : null,
+                'plainTextToken' => $request->hasSession() ? $request->session()->get('plainTextToken') : null,
             ],
         ];
     }

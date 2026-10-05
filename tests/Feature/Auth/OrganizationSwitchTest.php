@@ -22,7 +22,7 @@ it('lista só as organizações do usuário', function (): void {
 
     $this->actingAs($this->alice)->get(tenantUrl($this->acme, 'organizations'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Organizations/Index', false)->has('organizations', 2)
+        ->assertInertia(fn ($page) => $page->component('Organizations/Index')->has('organizations', 2)
             ->where('organizations.0.name', 'Acme')->where('organizations.1.name', 'Globex'));
 });
 
