@@ -109,4 +109,20 @@ final readonly class TenantAdministration
             throw ValidationException::withMessages(['reason' => 'Descreva o motivo (mínimo 10 caracteres).']);
         }
     }
+
+    /** Move o tenant para uma fila dedicada (ou de volta à padrão com null). */
+    public function assignQueue(Tenant $tenant, Admin $admin, ?string $queue, string $reason): void
+    {
+        $this->requireReason($reason);
+
+        /** @var list<string> $allowed */
+        $allowed = config('tenancy.dedicated_queues', []);
+
+        if ($queue !== null && ! in_array($queue, $allowed, true)) {
+            throw ValidationException::withMessages(['queue' => 'Fila desconhecida.']);
+        }
+
+        $tenant->forceFill(['queue' => $queue])->save();
+        $this->context->run($tenant, fn () => $this->audit->record('admin.queue_assigned', ['admin_id' => $admin->id, 'queue' => $queue, 'reason' => $reason]));
+    }
 }

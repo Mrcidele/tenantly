@@ -61,6 +61,9 @@ return [
         'signed_url_ttl' => 15, // minutos
     ],
 
+    // Filas com workers próprios (Horizon) para tenants grandes.
+    'dedicated_queues' => ['tenants-large'],
+
     'rate_limits' => [
         // Requests por minuto, por tenant (todas as origens) e por tenant + IP.
         'web_per_tenant' => (int) env('TENANCY_WEB_RATE_PER_TENANT', 1200),

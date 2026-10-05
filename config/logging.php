@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -58,6 +59,16 @@ return [
             'driver' => 'stack',
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
+        ],
+
+        // JSON em stderr (coletado pelo Docker/agent). O Laravel Context (tenant_id,
+        // tenant_slug, request id) entra automaticamente em cada registro.
+        'json' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'handler_with' => ['stream' => 'php://stderr'],
+            'formatter' => JsonFormatter::class,
+            'level' => env('LOG_LEVEL', 'info'),
         ],
 
         'single' => [

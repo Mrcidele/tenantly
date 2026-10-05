@@ -25,6 +25,7 @@ Route::middleware(['auth:admin', EnsureCentralContext::class])->group(function (
     Route::post('/tenants/{tenant}/suspend', [TenantController::class, 'suspend'])->name('tenants.suspend');
     Route::post('/tenants/{tenant}/reactivate', [TenantController::class, 'reactivate'])->name('tenants.reactivate');
     Route::post('/tenants/{tenant}/limits', [TenantController::class, 'limits'])->name('tenants.limits');
+    Route::post('/tenants/{tenant}/queue', [TenantController::class, 'queue'])->name('tenants.queue');
     Route::post('/tenants/{tenant}/impersonate', [TenantController::class, 'impersonate'])->name('tenants.impersonate');
     Route::get('/plans', [BillingOverviewController::class, 'plans'])->name('plans');
     Route::get('/invoices', [BillingOverviewController::class, 'invoices'])->name('invoices');

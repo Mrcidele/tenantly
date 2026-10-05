@@ -73,6 +73,18 @@ final class TenantController extends Controller
         return back()->with('status', 'Limites ajustados.');
     }
 
+    public function queue(Request $request, Tenant $tenant, TenantAdministration $administration): RedirectResponse
+    {
+        $administration->assignQueue(
+            $tenant,
+            $this->admin($request),
+            $request->filled('queue') ? $request->string('queue')->value() : null,
+            $request->string('reason')->value(),
+        );
+
+        return back()->with('status', 'Fila do tenant atualizada.');
+    }
+
     public function impersonate(Request $request, Tenant $tenant, Impersonator $impersonator): HttpResponse
     {
         $request->validate(['user_id' => ['required', 'uuid'], 'reason' => ['required', 'string']]);

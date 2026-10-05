@@ -1,0 +1,41 @@
+# Produção (single host). Em escala, use o mesmo desenho em ECS/Kubernetes.
+name: tenantly
+
+x-app: &app
+  image: ${IMAGE:-ghcr.io/mrcidele/tenantly:latest}
+  env_file: /srv/tenantly/.env
+  restart: unless-stopped
+  networks: [internal]
+
+services:
+  app:
+    <<: *app
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  horizon:
+    <<: *app
+    command: ["php", "artisan", "horizon"]
+
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    networks: [internal]
+    depends_on: [app]
+
+networks:
+  internal:
+
+volumes:
+  caddy-data:

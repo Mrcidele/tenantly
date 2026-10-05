@@ -10,24 +10,30 @@ use App\Domains\NativeDnsResolver;
 use App\Entitlements\Entitlements;
 use App\Enums\Permission;
 use App\Events\TenantProvisioningBilling;
+use App\Livewire\Pulse\TenantUsage;
 use App\Models\PersonalAccessToken;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Observability\HealthCheck;
 use App\Tenancy\Database\UseMigratorConnectionForSchemaCommands;
 use App\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Events\DiagnosingHealth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Horizon\Horizon;
 use Laravel\Pennant\Feature;
 use Laravel\Sanctum\Sanctum;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -65,6 +71,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('subdomain-check', static fn (Request $request): Limit => Limit::perMinute(30)->by((string) $request->ip()));
 
         Event::listen(TenantProvisioningBilling::class, StartTrialOnProvisioning::class);
+        Event::listen(DiagnosingHealth::class, HealthCheck::class);
+
+        // Horizon e Pulse: só a equipe interna (guard admin), no domínio do painel.
+        Horizon::auth(static fn (Request $request): bool => $request->user('admin') !== null);
+        Gate::define('viewPulse', static fn (?Authenticatable $user = null): bool => auth('admin')->check());
+        Livewire::component('pulse.tenant-usage', TenantUsage::class);
 
         // Feature flags (Pennant) escopadas ao tenant ativo.
         Feature::resolveScopeUsing(static fn (): ?Tenant => app(TenantContext::class)->current());

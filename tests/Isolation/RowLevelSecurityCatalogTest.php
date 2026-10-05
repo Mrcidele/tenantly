@@ -17,7 +17,7 @@ use Tests\Support\TenantModels;
  */
 const CENTRAL_TABLES = [
     'admins', 'billing_webhook_events', 'cache', 'cache_locks', 'failed_jobs', 'job_batches', 'jobs', 'migrations',
-    'features', 'plan_features', 'plans',
+    'features', 'plan_features', 'plans', 'pulse_aggregates', 'pulse_entries', 'pulse_values',
     'password_reset_tokens', 'sessions', 'tenants', 'users',
 ];
 

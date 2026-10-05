@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\DataExportReady;
 use App\Tenancy\Database\TenantDataExporter;
 use App\Tenancy\Filesystem\TenantFiles;
+use App\Tenancy\Queue\UsesTenantQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\File;
@@ -17,11 +18,14 @@ use Illuminate\Http\File;
 /** Gera o pacote de exportação (roda no contexto do tenant, vindo do payload). */
 final class ExportTenantData implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, UsesTenantQueue;
 
     public int $timeout = 900;
 
-    public function __construct(public readonly string $exportId) {}
+    public function __construct(public readonly string $exportId)
+    {
+        $this->onTenantQueue();
+    }
 
     public function handle(TenantDataExporter $exporter, TenantFiles $files, AuditLogger $audit): void
     {
